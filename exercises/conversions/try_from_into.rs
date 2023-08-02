@@ -27,7 +27,6 @@ enum IntoColorError {
     IntConversion,
 }
 
-// I AM NOT DONE
 
 // Your task is to complete this implementation and return an Ok result of inner
 // type Color. You need to create an implementation for a tuple of three
@@ -41,6 +40,16 @@ enum IntoColorError {
 impl TryFrom<(i16, i16, i16)> for Color {
     type Error = IntoColorError;
     fn try_from(tuple: (i16, i16, i16)) -> Result<Self, Self::Error> {
+        for c in [tuple.0, tuple.1, tuple.2]{
+            if c<0 || c>255{
+               return  Err(IntoColorError::IntConversion)
+            }
+        }
+        Ok(Color{
+            red: tuple.0 as u8,
+            green: tuple.1 as u8,
+            blue: tuple.2 as u8
+        })
     }
 }
 
@@ -48,6 +57,8 @@ impl TryFrom<(i16, i16, i16)> for Color {
 impl TryFrom<[i16; 3]> for Color {
     type Error = IntoColorError;
     fn try_from(arr: [i16; 3]) -> Result<Self, Self::Error> {
+
+        Self::try_from((arr[0],arr[1],arr[2]))
     }
 }
 
@@ -55,11 +66,16 @@ impl TryFrom<[i16; 3]> for Color {
 impl TryFrom<&[i16]> for Color {
     type Error = IntoColorError;
     fn try_from(slice: &[i16]) -> Result<Self, Self::Error> {
+        if slice.len()!=3{
+            Err(IntoColorError::BadLen)
+        }else {
+            Self::try_from((slice[0],slice[1],slice[2]))
+        }
     }
 }
 
 fn main() {
-    // Use the `try_from` function
+    // Use the try_from function
     let c1 = Color::try_from((183, 65, 14));
     println!("{:?}", c1);
 
@@ -68,7 +84,7 @@ fn main() {
     println!("{:?}", c2);
 
     let v = vec![183, 65, 14];
-    // With slice we should use `try_from` function
+    // With slice we should use try_from function
     let c3 = Color::try_from(&v[..]);
     println!("{:?}", c3);
     // or take slice within round brackets and use TryInto
@@ -191,3 +207,4 @@ mod tests {
         assert_eq!(Color::try_from(&v[..]), Err(IntoColorError::BadLen));
     }
 }
+
